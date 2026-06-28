@@ -1,0 +1,27 @@
+{
+  "model_name": "SVM (LinearSVC)",
+  "accuracy": 98.48,
+  "total_train": 4457,
+  "total_test": 1115,
+  "features": 5000,
+  "all_results": {
+    "Naive Bayes": {
+      "accuracy": 96.86,
+      "precision": 99.14,
+      "recall": 77.18,
+      "f1": 86.79
+    },
+    "Logistic Regression": {
+      "accuracy": 96.95,
+      "precision": 98.32,
+      "recall": 78.52,
+      "f1": 87.31
+    },
+    "SVM (LinearSVC)": {
+      "accuracy": 98.48,
+      "precision": 98.53,
+      "recall": 89.93,
+      "f1": 94.04
+    }
+  }
+}
