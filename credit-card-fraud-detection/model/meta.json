@@ -1,0 +1,37 @@
+{
+  "model_name": "Random Forest",
+  "roc_auc": 99.41,
+  "features": [
+    "amt",
+    "hour",
+    "day",
+    "month",
+    "dayofweek",
+    "age",
+    "distance",
+    "city_pop",
+    "gender_enc",
+    "category_enc"
+  ],
+  "train_samples": 57506,
+  "test_samples": 22145,
+  "fraud_train": 7506,
+  "fraud_test": 2145,
+  "all_results": {
+    "Logistic Regression": {
+      "accuracy": 94.45,
+      "f1": 72.09,
+      "roc_auc": 85.08
+    },
+    "Decision Tree": {
+      "accuracy": 97.12,
+      "f1": 86.6,
+      "roc_auc": 98.4
+    },
+    "Random Forest": {
+      "accuracy": 97.99,
+      "f1": 90.13,
+      "roc_auc": 99.41
+    }
+  }
+}

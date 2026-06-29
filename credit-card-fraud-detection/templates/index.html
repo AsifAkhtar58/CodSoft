@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Credit Card Fraud Detector | CodSoft Task 2</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">💳</span>
+      <div>
+        <span class="logo-title">FraudShield</span>
+        <span class="logo-sub">Credit Card Fraud Detector · CodSoft Task 2</span>
+      </div>
+    </div>
+    <div class="model-badge">
+      <span class="dot"></span>
+      Model: <strong>{{ meta.model_name }}</strong> &nbsp;|&nbsp; ROC-AUC: <strong>{{ meta.roc_auc }}%</strong>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────── -->
+<main class="container">
+
+  <!-- Stats Row -->
+  <section class="stats-row">
+    <div class="stat-card">
+      <span class="stat-num">{{ meta.roc_auc }}%</span>
+      <span class="stat-label">ROC-AUC Score</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ "{:,}".format(meta.train_samples) }}</span>
+      <span class="stat-label">Training Samples</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ meta.fraud_train }}</span>
+      <span class="stat-label">Fraud Cases Trained</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">3</span>
+      <span class="stat-label">Models Compared</span>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('detect', this)">🔍 Detect Fraud</button>
+    <button class="tab" onclick="switchTab('about', this)">📊 About Model</button>
+  </div>
+
+  <!-- ── Detect Tab ─────────────────────────────── -->
+  <section id="tab-detect" class="tab-panel active">
+    <div class="card">
+      <h2 class="card-title">Transaction Details</h2>
+      <p class="card-hint">Enter credit card transaction details to check if it's fraudulent.</p>
+
+      <div class="form-grid">
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label>Transaction Amount ($)</label>
+          <input type="number" id="amt" placeholder="e.g. 150.00" step="0.01" min="0"/>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label>Merchant Category</label>
+          <select id="category">
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat.replace('_', ' ').title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Transaction Time -->
+        <div class="form-group">
+          <label>Transaction Date & Time</label>
+          <input type="datetime-local" id="trans_time"/>
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="form-group">
+          <label>Cardholder Date of Birth</label>
+          <input type="date" id="dob" value="1990-01-01"/>
+        </div>
+
+        <!-- Gender -->
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+
+        <!-- City Population -->
+        <div class="form-group">
+          <label>City Population</label>
+          <input type="number" id="city_pop" placeholder="e.g. 50000" value="50000"/>
+        </div>
+
+        <!-- Customer Location -->
+        <div class="form-group">
+          <label>Customer Latitude</label>
+          <input type="number" id="lat" placeholder="e.g. 36.7" step="0.0001" value="36.7"/>
+        </div>
+        <div class="form-group">
+          <label>Customer Longitude</label>
+          <input type="number" id="long" placeholder="e.g. -81.7" step="0.0001" value="-81.7"/>
+        </div>
+
+        <!-- Merchant Location -->
+        <div class="form-group">
+          <label>Merchant Latitude</label>
+          <input type="number" id="merch_lat" placeholder="e.g. 36.0" step="0.0001" value="36.0"/>
+        </div>
+        <div class="form-group">
+          <label>Merchant Longitude</label>
+          <input type="number" id="merch_long" placeholder="e.g. -81.0" step="0.0001" value="-81.0"/>
+        </div>
+
+      </div>
+
+      <!-- Example buttons -->
+      <div class="examples">
+        <span class="examples-label">Try example:</span>
+        <button class="pill fraud-pill" onclick="fillExample('fraud')">🚨 Suspicious Transaction</button>
+        <button class="pill legit-pill" onclick="fillExample('legit')">✅ Normal Transaction</button>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="analyseTransaction()">🔍 Analyse Transaction</button>
+        <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      </div>
+
+      <!-- Result -->
+      <div id="resultBox" class="result-box hidden"></div>
+    </div>
+  </section>
+
+  <!-- ── About Tab ──────────────────────────────── -->
+  <section id="tab-about" class="tab-panel hidden">
+    <div class="card">
+      <h2 class="card-title">Model Details</h2>
+      <div class="about-grid">
+
+        <div class="about-block">
+          <h3>📊 Dataset</h3>
+          <ul>
+            <li>Source: Credit Card Fraud Dataset</li>
+            <li>Total transactions: 1,296,675</li>
+            <li>Training samples: {{ "{:,}".format(meta.train_samples) }}</li>
+            <li>Fraud cases: {{ meta.fraud_train }}</li>
+            <li>Fraud rate: ~0.58%</li>
+          </ul>
+        </div>
+
+        <div class="about-block">
+          <h3>⚙️ Features Used</h3>
+          <ul>
+            <li>Transaction Amount</li>
+            <li>Transaction Hour/Day/Month</li>
+            <li>Cardholder Age</li>
+            <li>Distance to Merchant</li>
+            <li>Merchant Category</li>
+            <li>City Population</li>
+            <li>Gender</li>
+          </ul>
+        </div>
+
+        <div class="about-block">
+          <h3>🤖 Models Compared</h3>
+          <table class="model-table">
+            <thead>
+              <tr><th>Model</th><th>Accuracy</th><th>ROC-AUC</th></tr>
+            </thead>
+            <tbody id="modelTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="about-block">
+          <h3>🏆 Best Model</h3>
+          <p><strong>{{ meta.model_name }}</strong></p>
+          <p>ROC-AUC: <strong>{{ meta.roc_auc }}%</strong></p>
+          <p>Handles class imbalance</p>
+          <p>10 engineered features</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>CodSoft Machine Learning Internship · Task 2 · Credit Card Fraud Detection</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+  const allResults = {{ meta.all_results | tojson }};
+  const tbody = document.getElementById('modelTableBody');
+  for (const [name, m] of Object.entries(allResults)) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td>${m.accuracy}%</td><td>${m.roc_auc}%</td>`;
+    tbody.appendChild(tr);
+  }
+  // Set default datetime
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('trans_time').value = now.toISOString().slice(0,16);
+</script>
+
+</body>
+</html>
